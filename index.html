@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+	<style type="text/css">
+		button{
+			font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+			font-size: 30px;
+			border-radius: 10px;
+			color:#adadad;
+			background:none;
+			margin-left: 20px;
+			margin-right: 20px;
+		}
+		body{
+			overflow: hidden;
+		}
+		canvas{
+			perspective: 1000px;
+			transform-style: preserve-3d;
+			position: absolute;
+			margin: auto;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background-size: cover;
+		}
+		.modal {
+	  		display: none; /* Hidden by default */
+	  		position: fixed; /* Stay in place */
+	  		z-index: 1; /* Sit on top */
+	  		padding-top: 100px; /* Location of the box */
+	  		left: 0;
+	  		top: 0;
+	  		width: 100%; /* Full width */
+	  		height: 100%; /* Full height */
+	  		overflow: auto; /* Enable scroll if needed */
+	  		background-color: rgb(0,0,0); /* Fallback color */
+	  		background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+		}
+
+		/* Modal Content */
+		.modal-content {
+			position: relative;
+			background-color: #fefefe;
+			margin: auto;
+			padding: 0;
+			width: 80%;
+			box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+			-webkit-animation-name: animatetop;
+			-webkit-animation-duration: 0.4s;
+			animation-name: animatetop;
+			animation-duration: 0.4s
+		}
+
+		@-webkit-keyframes animatetop {
+		from {top:-300px; opacity:0} 
+		to {top:0; opacity:1}
+		}
+
+		@keyframes animatetop {
+		from {top:-300px; opacity:0}
+		to {top:0; opacity:1}
+		}
+
+		.close {
+		color: white;
+		float: right;
+		font-size: 40px;
+		font-weight: bold;
+		transition: 0.5s;
+		}
+
+		.close:hover,
+		.close:focus {
+		color: red;
+		rotate: 90deg;
+		text-decoration: none;
+		cursor: pointer;
+		filter: drop-shadow(0 0 10px red) drop-shadow(0 0 15px red) drop-shadow(0 0 20px red);
+		}
+
+		.modal-header {
+		padding: 2px 16px;
+		background-color: #222;
+		color: white;
+			text-align: center;
+
+		}
+
+		.modal-body {
+			padding: 2px 16px;
+			background-color: #10202b;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			min-height: 50vh;
+		}
+		.editor_info{
+			width: 82%;
+			height: 120px;
+			border:1px solid white;
+			border-radius: 20px;
+			margin-top: 10px;
+		}
+		.tabs input{
+			visibility: hidden;
+			display: none;
+		}
+		.buttons{
+			position: relative;
+			display: flex;
+			gap: 80px;
+			padding: 30px 40px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+			background: #182d3c;
+			overflow: hidden;
+			border-radius: 20px;
+		}
+		.button label{
+			width: 20%;
+		}
+		.confp:hover{
+			opacity: 1;
+			-webkit-text-stroke:1px #fff;
+			filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #fff);
+		}
+		.tabs input:nth-child(1):checked ~ .buttons label:nth-child(1){
+			opacity: 1;
+			filter: drop-shadow(0 0 10px lime) drop-shadow(0 0 20px lime) drop-shadow(0 0 25px lime);
+		}
+		.tabs input:nth-child(2):checked ~ .buttons label:nth-child(2){
+			opacity: 1;
+			filter: drop-shadow(0 0 10px yellow) drop-shadow(0 0 20px yellow) drop-shadow(0 0 25px yellow);
+		}
+		.tabs input:nth-child(3):checked ~ .buttons label:nth-child(3){
+			opacity: 1;
+			filter: drop-shadow(0 0 5px red) drop-shadow(0 0 10px red) drop-shadow(0 0 20px red) drop-shadow(0 0 25px red);
+		}
+		.tabs input:nth-child(4):checked ~ .buttons label:nth-child(4){
+			opacity: 1;
+			filter: drop-shadow(0 0 5px black) drop-shadow(0 0 10px black) drop-shadow(0 0 20px black) drop-shadow(0 0 25px black);
+		}
+		.underline{
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 17%;
+			height: 5px;
+			transition: 0.5s;
+		}
+		.underline::before{
+			content: '';
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 60px;
+			height: 100%;
+			border-radius: 4px;
+			transition: 0.5s;
+			
+		}
+		.underline::after{
+			content: '';
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 60px;
+			height: 100%;
+			background-color: white;
+			border-radius: 4px;
+			transition: 0.5s;
+			filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #fff) drop-shadow(0 0 30px #fff) drop-shadow(0 0 50px #fff);
+		}
+		.tabs input:nth-child(1):checked ~ .buttons .underline{
+				left: 2%;
+				filter: drop-shadow(0 0 30px lime) drop-shadow(0 0 50px lime) blur(5px);
+		}
+		.tabs input:nth-child(2):checked ~ .buttons .underline{
+				left: 27%;
+				filter: drop-shadow(0 0 30px yellow) drop-shadow(0 0 50px yellow) blur(5px);
+		}
+		.tabs input:nth-child(3):checked ~ .buttons .underline{
+				left: 53%;
+				filter: drop-shadow(0 0 30px red) drop-shadow(0 0 50px red) blur(5px);
+		}
+		.tabs input:nth-child(4):checked ~ .buttons .underline{
+				left: 78%;
+				filter: drop-shadow(0 0 30px black) drop-shadow(0 0 50px black) blur(5px);
+		}
+		.confp{
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			font-size: 30px;
+			font-variant: small-caps;
+			color: transparent;
+			-webkit-text-stroke:1px rgb(255, 255, 255);
+			cursor: pointer;
+			transition: 0.5s;
+			user-select: none;
+		}
+		.modal-footer {
+		display: flex;
+		justify-content: center;
+		padding: 2px 16px;
+		background-color: #222;
+		color: white;
+		}
+		body{
+			text-align: center;
+			background-color: #222;
+		}
+		.playGame_btn{
+			font-family:'Press Start 2P';
+			font-size: 40px;
+			margin: auto;
+			color: white;
+			position: absolute;
+			top: 200px;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			width: 5%;
+			height: 5%;
+			text-align: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: 1s;
+		}
+		.playGame_btn:hover{
+			cursor: pointer;
+			color: green;
+			filter: drop-shadow(4px 4px 0px black);
+		}
+		.play_btn{
+			font-family:'Press Start 2P';
+			font-size: 40px;
+			margin: auto;
+			color: white;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			width: 5%;
+			height: 5%;
+			text-align: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: 1s;
+		}
+		.play_btn:hover{
+			width: 15%;
+			height: 15%;
+			font-size: 500%;
+			color:lime;
+			cursor: pointer;
+			filter: drop-shadow(0px 0px 10px) contrast(200%);
+			animation: animate 3s linear infinite;
+		}
+		@keyframes animate{
+			0%{
+				filter: drop-shadow(0px 0px 10px) drop-shadow(0px 0px 35px) hue-rotate(0deg);
+			}
+			100%{
+				filter: drop-shadow(0px 0px 10px) drop-shadow(0px 0px 35px) hue-rotate(360deg);
+			}
+		}
+		@keyframes coloRain{
+			0%{
+				filter: hue-rotate(0deg);
+			}
+			100%{
+				filter: hue-rotate(360deg);
+			}
+		}
+		@keyframes faseout{
+			0%{
+				opacity: 100%;
+			}
+			100%{
+				opacity: 0%;
+				display: none;
+			}
+		}
+	</style>
+	</head>
+	<body>
+		
+		<canvas id="c1" width="1300" height="600"></canvas>
+		<div id="options">
+			<div class="cont-lang">
+				<h1 style="color:aqua; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">CHOICE LANGUAGE</h1>
+				<button id="eng-lang">ENG</button>
+				<button id="ru-lang">RU</button>
+				<button id="uzb-lang">UZB</button>
+			</div>
+			<div id="play_btn" class="play_btn">
+				<span id="btn_play" class="btn_h1">PLAY</span>
+			</div>
+		</div>
+		<div id="myModal" class="modal">
+			<div class="modal-content">
+    			<div class="modal-header">
+    				<span class="close" id="span">&times;</span>
+      				<h1 id="text-dif" style="font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif">select difficulty level</h1>
+    			</div>
+    			<div class="modal-body">
+    				<div class="tabs">
+						<input id="easy" type="radio" name="tabsMenu" checked>
+						<input id="normal" type="radio" name="tabsMenu">
+						<input id="hard" type="radio" name="tabsMenu">
+						<input id="brutal" type="radio" name="tabsMenu">
+						<div class="buttons" id="confbtn">
+							<label for="easy"><span class="confp" id="easyD">easy</span></label>
+							<label for="normal"><span class="confp" id="normalD">normal</span></label>
+							<label for="hard"><span class="confp" id="hardD">hard</span></label>
+							<label for="brutal"><span class="confp" id="brutalD">brutal</span></label>
+							<div class="underline"></div>
+						</div>
+    				</div>
+					<div class="editor_info">
+						<div id="start_text" class="playGame_btn" onclick="start()">START</div>
+					</div>
+				</div>
+   				<div class="modal-footer"></div>
+  			</div>
+		</div>
+		<div id="atom-container">
+			<div id="atom-circle"></div>
+			<div id="atom-electron"></div>
+		</div>
+		
+		<script>
+			var Text_dif = document.getElementById("text-dif");
+			var Btn_lang_eng = document.getElementById('eng-lang');
+			var Btn_lang_ru = document.getElementById('ru-lang');
+			var Btn_lang_uzb = document.getElementById('uzb-lang');
+			Btn_lang_eng.style.color="#00f1c6";
+			Btn_lang_eng.style.filter="drop-shadow(0px 0px 10px #00f1c6)";
+
+			Btn_lang_ru.style.color="grey";
+			Btn_lang_ru.style.filter="drop-shadow(0px 0px 10px grey)";
+
+			Btn_lang_uzb.style.color="grey";
+			Btn_lang_uzb.style.filter="drop-shadow(0px 0px 10px grey)";
+
+			Btn_lang_eng.style.transition="1s";
+			Btn_lang_ru.style.transition="1s";
+			Btn_lang_uzb.style.transition="1s";
+
+			Btn_lang_eng.onclick = ()=>{
+				localStorage.setItem('language','eng');
+				start_text.innerHTML = "START";
+				easyD.innerHTML = "easy";
+				normalD.innerHTML = "normal";
+				hardD.innerHTML = "hard";
+				brutalD.innerHTML = "brutal";
+				Text_dif.innerHTML = "select difficulty level"
+				
+				Btn_lang_eng.style.color="#00f1c6"
+				Btn_lang_eng.style.filter="drop-shadow(0px 0px 10px #00f1c6)"
+				
+				Btn_lang_ru.style.color="grey";
+				Btn_lang_ru.style.filter="drop-shadow(0px 0px 10px grey)";
+
+				Btn_lang_uzb.style.color="grey";
+				Btn_lang_uzb.style.filter="drop-shadow(0px 0px 10px grey)";
+				btn_play.innerHTML = "PLAY"
+			}
+			Btn_lang_ru.onclick = ()=>{
+				localStorage.setItem('language','ru');
+				start_text.innerHTML = "НАЧАТЬ";
+
+				easyD.innerHTML = "легкий";
+				normalD.innerHTML = "нормальный";
+				hardD.innerHTML = "сложный";
+				brutalD.innerHTML = "жестокий";
+				Text_dif.innerHTML = "выбор уровень сложности"
+
+				Btn_lang_ru.style.color="#00f1c6"
+				Btn_lang_ru.style.filter="drop-shadow(0px 0px 10px #00f1c6)"
+
+				Btn_lang_eng.style.color="grey";
+				Btn_lang_eng.style.filter="drop-shadow(0px 0px 10px grey)";
+
+				Btn_lang_uzb.style.color="grey";
+				Btn_lang_uzb.style.filter="drop-shadow(0px 0px 10px grey)";
+
+				btn_play.innerHTML = "ИГРАТ"
+			}
+			Btn_lang_uzb.onclick = ()=>{
+				localStorage.setItem('language','uzb');
+				start_text.innerHTML = "BOSHLASH";
+
+				easyD.innerHTML = "oson";
+				normalD.innerHTML = "o'rtacha";
+				hardD.innerHTML = "qiyin";
+				brutalD.innerHTML = "shafqatsiz";
+				Text_dif.innerHTML = "qiyinchilik darajasini tanlang"
+
+				Btn_lang_uzb.style.color="#00f1c6"
+				Btn_lang_uzb.style.filter="drop-shadow(0px 0px 10px #00f1c6)"
+
+				Btn_lang_eng.style.color="grey";
+				Btn_lang_eng.style.filter="drop-shadow(0px 0px 10px grey)";
+
+				Btn_lang_ru.style.color="grey";
+				Btn_lang_ru.style.filter="drop-shadow(0px 0px 10px grey)";
+
+				btn_play.innerHTML = "O'YNASH"
+			}
+			var atomC = document.getElementById('atom-container');
+			var atomE = document.getElementById('atom-electron');
+			var atomS = document.getElementById('atom-circle');
+			atomC.style = `
+			z-index:1000;
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			border:2px solid #ebab0c;
+			border-radius:100%;
+			pointer-events:none;
+			`
+			atomE.style = `
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			background:#ebab0c;
+			border-radius:100%;
+
+			`
+			atomS.style = `
+			width:20px;
+			height:20px;
+			position: absolute;
+			background:#ebab0c;
+			border-radius:100%;
+			`
+			var moX = 0;
+			var moY = 0;
+			var xx = 0;
+			var yy = 0;
+			var angle = 0;
+			document.addEventListener('mousemove',(event)=>{
+				moX = event.x
+				moY = event.y
+				atomC.style.left = moX-25+"px";
+				atomC.style.top = moY-25+"px";
+				
+				atomS.style.left = 15+"px";
+				atomS.style.top = 15+"px";
+			})
+			cricleAnim()
+			function cricleAnim(){
+				angle+=0.1;
+				atomE.style.left = 20+26*Math.cos(angle)+"px";
+				atomE.style.top = 20+26*Math.sin(angle)+"px";
+				requestAnimationFrame(cricleAnim);
+			}
+			function start(){
+				window.location = "game.html"
+			}
+		</script>
+		<script>
+			class Mtable{
+			constructor(x,y,grid){
+				var yc = 'Khaki';
+				var oc = 'Coral';
+				var rc = 'IndianRed';
+				var fc = 'MediumPurple';
+				var lbc = 'SteelBlue';
+				var lgc = 'Lime';
+				var mc = 'Silver'; 
+				var llbc = 'DarkTurquoise'; 
+				var lllbc = 'Aqua';
+				this.color =['0',yc,oc,rc,fc,mc,yc,yc,yc,yc,oc,rc,fc,lgc,mc,yc,yc,yc,oc,rc,fc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,mc,mc,yc,yc,oc,rc,fc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,mc,mc,yc,oc,rc,fc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,lgc,mc,yc,oc,rc,fc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,lgc,lgc,yc,oc];
+				this.Mid = ['0','H','He','Li','Be','B','C','N','O','F','Ne','Na',
+			'Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn',
+			'Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y',
+			'Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I',
+			'Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho',
+			'Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl',
+			'Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am',
+			'Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db','Sg','Bh','Hs','Mt',
+			'Ds','Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og'];
+				this.Mname = ['0','Hydrogen','Helium','Lithium','Beryllium','Boron',
+			'Carbon','Nitrogen','Oxygen','Fluorine','Neon','Sodium','Magnesium',
+			'Aluminium','Silicon','Phosphorus','Sulfur','Chlorine','Argon',
+			'Potassium','Calcium','Scandium','Titanium','Vanadium','Chromium',
+			'Manganese','Iron','Cobalt','Nickel','Copper','Zinc','Gallium',
+			'Germanium','Arsenic','Selenium','Bromine','Krypton','Rubidium',
+			'Strontium','Yttrium','Zirconium','Niobium','Molybdenum','Technetium',
+			'Ruthenium','Rhodium','Palladium','Silver','Cadmium','Indium','Tin',
+			'Antimony','Tellurium','Iodine','Xenon','Cesium','Barium','Lanthanum',
+			'Cerium','Praseodymium','Neodymium','Promethium','Samarium','Europium',
+			'Gadolinium','Terbium','Dysprosium','Holmium','Erbium','Thulium',
+			'Ytterbium','Lutetium','Hafnium','Tantalum','Tungsten','Rhenium',
+			'Osmium','Iridium','Platinum','Gold','Mercury','Thallium','Lead',
+			'Bismuth','Polonium','Astatine','Radon','Francium','Radium','Actinium',
+			'Thorium','Protactinium','Uranium','Neptunium','Plutonium','Americium',
+			'Curium','Berkelium','Californium','Einsteinium','Fermium','Mendelevium',
+			'Nobelium','Lawrencium','Rutherfordium','Dubnium','Seaborgium','Bohrium',
+			'Hassium','Meitnerium','Darmstadtium','Roentgenium','Copernicium','Nihonium',
+			'Flerovium','Moscovium','Livermorium','Tennessine','Oganesson'];
+				this.Mi = ['0',1.0079,4.0026,6.941,9.0122,10.811,12.0107,14.0067,
+			15.9994,18.9984,20.1797,22.9897,24.305,26.9815,28.0855,30.9738,
+			32.065,35.453,39.948,39.0983,40.078,44.9559,47.867,50.9415,51.9961,
+			54.938,55.845,58.9332,58.6934,63.546,65.39,69.723,72.64,74.9216,
+			78.96,79.904,83.8,85.4678,87.62,88.9059,91.224,92.9064,95.94,98,
+			101.07,102.9055,106.42,107.8682,112.411,114.818,118.71,121.76,127.6,
+			126.9045,131.293,132.9055,137.327,138.9055,140.116,140.9077,144.24,
+			145,150.36,151.964,157.25,158.9253,162.5,164.9303,167.259,168.9342,
+			173.04,174.967,178.49,180.9479,183.84,186.207,190.23,196.9665,192.217,
+			195.078,200.59,204.3833,207.2,208.9804,209,210,222,223,226,227,232.0381,
+			231.0359,238.0289,237,244,243,247,247,251,252,257,258,259,262,261,262,266,
+			264,277,278,281,282,285,286,289,289,293,294,294];
+				this.x = x;
+				this.y = y;
+				this.grid = grid;
+				this.Melems = [];
+				this.randMelems = [];
+				for (var i = 1; i < this.Mname.length; i++) {
+					this.Melems.push(new Melem(i,this.Mid[i],this.Mname[i],this.x,this.y,this.grid,this.color[i]))
+				}
+			}
+			draw(c){
+				var x = -1, y = 0;
+				for (var i = 0; i < this.Melems.length; i++) {
+					if (x > c.canvas.width/this.grid) {
+						x = -1;
+						y += 1;
+					}
+					x++;
+					this.Melems[i].x = this.grid*x;
+					this.Melems[i].y = this.grid*y;
+					this.Melems[i].draw(c)
+				}
+			}
+			drawTv(c,center=null){
+				var x = 0, y = 0;
+				if (center == null) {
+					x = this.x;	
+					y = this.y;
+				}
+				else{
+					x = (c.canvas.width-19*this.grid)/2;
+					y = (c.canvas.height-10*this.grid)/2;
+				}
+				var by = 0;
+				var bx = 0;
+				var tmp = 0;
+				var g = this.grid;
+				ms(this,1,x,y,0);
+				ms(this,3,x,y);
+				ms(this,11,x,y);
+				ms(this,19,x,y);
+				ms(this,37,x,y);
+				ms(this,55,x,y);
+				ms(this,87,x,y);
+				
+				ms(this,4,x,y,1);
+				ms(this,12,x,y);
+				ms(this,20,x,y);
+				ms(this,38,x,y);
+				ms(this,56,x,y);
+				ms(this,88,x,y);
+
+				ms(this,21,x,y,3);
+				ms(this,39,x,y);
+				ms(this,57,x,y);
+				ms(this,89,x,y);
+
+				for (var i = 22; i < 31; i++) {
+					ms(this,i,x+g,y,3);
+					ms(this,40-22+i,x+g,y);
+					ms(this,72-22+i,x+g,y);
+					ms(this,104-22+i,x+g,y);			
+				}
+				for (var i = 5; i < 10; i++) {
+					ms(this,i,x+g,y,1);
+					ms(this,13-5+i,x+g,y);
+					ms(this,31-5+i,x+g,y);
+					ms(this,49-5+i,x+g,y);
+					ms(this,81-5+i,x+g,y);
+					ms(this,113-5+i,x+g,y);
+				}
+				
+					ms(this,2,x+g,y,0);
+					ms(this,10,x+g,y);
+					ms(this,18,x+g,y);
+					ms(this,36,x+g,y);
+					ms(this,54,x+g,y);
+					ms(this,86,x+g,y);
+					ms(this,118,x+g,y);
+
+					ms(this,58,x+g,y,8,3);
+					ms(this,90,x+g,y);
+
+					for (var i = 59; i < 72; i++) {
+						ms(this,i,x+g,y,8);
+						ms(this,91-59+i,x+g,y);
+					}
+
+				function ms(s,n,x,y,t=null,f=null) {
+					if (f == null) {
+						if (tmp < n) {
+						tmp = n;
+					}
+						else{
+							bx += 1;
+							tmp = n;
+						}
+					}
+					else if(f != null){
+						bx = f;
+						tmp = n;
+					}
+
+					if (t == null) {
+						by += 1;
+					}
+					else{
+						by = t;
+					}
+					s.Melems[n-1].x = x+g*bx;
+					s.Melems[n-1].y = y+g*by;
+					s.Melems[n-1].draw(c);
+				}
+				for (var i = 0; i < this.Melems.length; i+=Math.floor(Math.random()*3)) {
+						this.randMelems.push(this.Melems[i]);
+						this.Melems[i] = null;
+					}
+
+				c.canvas.addEventListener('mousemove', e => {
+				c.clearRect(0, 0, c.canvas.width, c.canvas.height);
+				c.save();
+				for (var i = 0; i < this.Melems.length; i++) {
+					if (this.Melems[i]) {
+						this.Melems[i].drawMotion(c,(c.canvas.width/2-e.offsetX)*0.02,(c.canvas.height/2-e.offsetY)*0.02);
+					}
+				}
+				for (var i = 0; i < this.randMelems.length; i++) {
+					if (this.randMelems[i]) {
+						this.randMelems[i].drawMotion(c,(c.canvas.width/2-e.offsetX)*0.05,(c.canvas.height/2-e.offsetY)*0.05);
+						atomC.style.display = "block"
+						
+					}
+				}
+				for (var i = 0; i < this.Melems.length; i++) {
+					if (this.Melems[i]) {
+						if (e.offsetX > this.Melems[i].x && e.offsetX < this.Melems[i].x + this.grid &&
+							e.offsetY > this.Melems[i].y && e.offsetY < this.Melems[i].y + this.grid) {
+							this.Melems[i].grid = this.grid * 2;
+							this.Melems[i].drawOnly(c,(c.canvas.width/2-e.offsetX)*0.02-(this.grid * 1.8)/4,(c.canvas.height/2-e.offsetY)*0.02-(this.grid * 1.8)/4);
+							this.Melems[i].grid = this.grid;
+							atomC.style.display = "none"
+						}
+					}
+				}
+
+				for (var i = 0; i < this.randMelems.length; i++) {
+					if (this.randMelems[i]) {
+						if (e.offsetX > this.randMelems[i].x && e.offsetX < this.randMelems[i].x + this.grid &&
+							e.offsetY > this.randMelems[i].y && e.offsetY < this.randMelems[i].y + this.grid) {
+							this.randMelems[i].grid = this.grid * 2;
+							atomC.style.display = "none"
+
+						this.randMelems[i].drawOnly(ctx,(c.canvas.width/2-e.offsetX)*0.02-(this.grid * 1.8)/4,(c.canvas.height/2-e.offsetY)*0.02-(this.grid * 1.8)/4);
+							this.randMelems[i].grid = this.grid;
+							atomC.style.display = "none"
+
+						}
+					}
+				}
+				ctx.restore();
+				})
+				c.canvas.addEventListener('mouseout', e =>{
+					c.clearRect(0,0,c.canvas.width, c.canvas.height);
+					for (var i = 0; i < this.Melems.length; i++) {
+					if (this.Melems[i]) {
+						this.Melems[i].drawMotion(c,(c.canvas.width/2-e.offsetX)*0.02,(c.canvas.height/2-e.offsetY)*0.02);
+					}
+				}
+				for (var i = 0; i < this.randMelems.length; i++) {
+					if (this.randMelems[i]) {
+						this.randMelems[i].drawMotion(c,(c.canvas.width/2-e.offsetX)*0.05,(c.canvas.height/2-e.offsetY)*0.05);
+					}
+				}
+				})
+			}
+		}
+		class Melem{
+			constructor(num,id,text,x,y,grid,color){
+				this.num = num;
+				this.id = id;
+				this.text = text;
+				this.x = x;
+				this.y = y;
+				this.grid = grid;
+				this.color = color;
+			}
+			draw(c){
+				c.beginPath();
+				c.textAlign = 'start';
+				c.rect(this.x,this.y,this.grid,this.grid);
+				c.font = Math.floor(this.grid/5)+"px Arial";
+				c.fillText(this.num, this.x+this.grid/20, this.y+this.grid/5);
+				c.textAlign = 'center';
+				c.font = "bold "+Math.floor(this.grid/2)+"px Arial";
+				c.fillText(this.id, this.x+this.grid/2, this.y+this.grid/1.5);
+				c.font = Math.floor(this.grid/6.5)+"px Arial";
+				c.fillText(this.text, this.x+this.grid/2, this.y+this.grid/1.1);
+				c.stroke();
+				c.closePath();
+			}
+			drawMotion(c,x,y){
+
+				c.beginPath();
+				c.lineWidth = "1";
+				c.strokeStyle = this.color;
+				c.textAlign = 'start';
+				c.strokeRect(this.x+x,this.y+y,this.grid,this.grid,10);
+				c.fillStyle = this.color;
+				c.strokeRect(this.x+x,this.y+y,this.grid,this.grid);
+				c.font = Math.floor(this.grid/5)+"px Arial "+this.color;
+				c.fillText(this.num, this.x+x+this.grid/20, this.y+y+this.grid/5);
+				c.textAlign = 'center';
+				c.font = "bold "+Math.floor(this.grid/2)+"px Arial" +this.color;
+				c.fillText(this.id, this.x+x+this.grid/2, this.y+y+this.grid/1.5);
+				c.font = Math.floor(this.grid/6.5)+"px Arial" +this.color;
+				c.fillText(this.text, this.x+x+this.grid/2, this.y+y+this.grid/1.1);
+				c.closePath();
+				c.beginPath();
+				c.strokeStyle = this.color;
+				c.moveTo(this.x, this.y);
+				c.lineTo(this.x + x, this.y + y);
+				c.lineTo(this.x + x,this.y+y+this.grid);
+				c.lineTo(this.x,this.y-y/this.grid+this.grid);
+				c.lineTo(this.x,this.y);
+				c.lineTo(this.x +this.grid,this.y);
+				c.lineTo(this.x +this.grid+x,this.y+y);
+				c.lineTo(this.x +this.grid,this.y);
+				c.lineTo(this.x +this.grid,this.y+this.grid);
+				c.lineTo(this.x +this.grid+x,this.y+this.grid+y);
+				c.lineTo(this.x +this.grid,this.y+this.grid);
+				c.lineTo(this.x,this.y+this.grid);
+				c.stroke();
+				c.closePath();
+			}
+			drawOnly(c,x,y){
+				c.beginPath();
+				c.strokeStyle = this.color;
+				c.textAlign = 'start';
+				c.fillStyle = '#222';
+				c.lineWidth = "4";
+				c.fillRect(this.x+x,this.y+y,this.grid,this.grid);
+				c.strokeRect(this.x+x,this.y+y,this.grid,this.grid);
+				c.fillStyle = this.color;
+				c.font = Math.floor(this.grid/5)+"px Arial "+this.color;
+				c.fillText(this.num, this.x+x+this.grid/20, this.y+y+this.grid/5);
+				c.textAlign = 'center';
+				c.font = "bold "+Math.floor(this.grid/2)+"px Arial" +this.color;
+				c.fillText(this.id, this.x+x+this.grid/2, this.y+y+this.grid/1.5);
+				c.font = Math.floor(this.grid/6.5)+"px Arial" +this.color;
+				c.fillText(this.text, this.x+x+this.grid/2, this.y+y+this.grid/1.1);
+				c.closePath();
+			}
+		}
+		</script>
+		<script>
+			var canvas = document.getElementById('c1');
+			var ctx = canvas.getContext('2d');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			var whMonitor = (window.innerWidth + window.innerHeight) / 40
+			var table = new Mtable(0,0,whMonitor);
+			table.drawTv(ctx,1);
+		</script>
+		<script type="text/javascript">
+			var modal = document.getElementById("myModal");
+			var btn = document.getElementById("myBtn");
+			var span = document.getElementsByClassName("close")[0];
+			// confbtn.onclick = function () {
+			// 	var t = document.querySelectorAll('input');
+			// 	console.log(t[0]);
+			// }
+			play_btn.onclick = function() {
+				modal.style.display = "block";
+			}
+
+			span.onclick = function() {
+			modal.style.display = "none";
+			}
+
+			window.onclick = function(event) {
+			if (event.target == modal) {
+				modal.style.display = 'none';
+			}
+			}
+			easy.onclick = function(event){
+				localStorage.setItem('difficult', 4);
+			}
+			normal.onclick = function(event){
+				localStorage.setItem('difficult', 6);
+			}
+			hard.onclick = function(event){
+				localStorage.setItem('difficult', 8);
+			}
+			brutal.onclick = function(event){
+				localStorage.setItem('difficult', 10);
+			}
+			// start_btn.onclick = function () {
+				// window.location.href = 'index.html';
+			// }
+		</script>
+	</body>
+</html>

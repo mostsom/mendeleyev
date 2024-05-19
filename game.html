@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=0.5, user-scalable=0">
+	<title>Mendeleyev Game</title>
+	<style type="text/css">
+		#c1{
+			left: 0;
+			top: 20px;
+			right: 0;
+			bottom: 0;
+			border: 1px solid black;
+			background-color: #222;
+		}
+		body{
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+			background-color: #5cb85c;
+		}
+
+		#timerInfo{
+			position: absolute;
+		  margin-left:80%;
+		}
+		#clickInfo{
+		  position: absolute;
+		  margin-top:60px;
+		  margin-left:80%;
+		}
+		.modal {
+		  display: none; /* Hidden by default */
+		  position: fixed; /* Stay in place */
+		  z-index: 1; /* Sit on top */
+		  padding-top: 100px; /* Location of the box */
+		  left: 0;
+		  top: 0;
+		  width: 100%; /* Full width */
+		  height: 100%; /* Full height */
+		  overflow: auto; /* Enable scroll if needed */
+		  background-color: rgb(0,0,0); /* Fallback color */
+		  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+		}
+
+		.modal-content {
+		  position: relative;
+		  background-color: #fefefe;
+		  margin: auto;
+		  padding: 0;
+		  border: 1px solid #888;
+		  width: 80%;
+		  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+		  -webkit-animation-name: animatetop;
+		  -webkit-animation-duration: 0.4s;
+		  animation-name: animatetop;
+		  animation-duration: 0.4s
+		}
+
+		@-webkit-keyframes animatetop {
+		  from {top:-300px; opacity:0} 
+		  to {top:0; opacity:1}
+		}
+
+		@keyframes animatetop {
+		  from {top:-300px; opacity:0}
+		  to {top:0; opacity:1}
+		}
+
+		.close {
+		  color: white;
+		  float: right;
+		  font-size: 28px;
+		  font-weight: bold;
+		}
+
+		.close:hover,
+		.close:focus {
+		  color: #000;
+		  text-decoration: none;
+		  cursor: pointer;
+		}
+
+		.modal-header {
+		  padding: 2px 16px;
+		  background-color: #5cb85c;
+		  color: white;
+		}
+
+		.modal-body {padding: 2px 16px;}
+
+		.modal-footer {
+		  padding: 2px 16px;
+		  background-color: #5cb85c;
+		  color: white;
+		}
+	</style>
+</head>
+<body>
+	<h1 id="timerInfo">TIME</h1>
+	<h1 id="clickInfo">Click</h1>
+	<canvas id="c1" width="900" height="700"></canvas>
+	<div id="myModal" class="modal">
+	<div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h1 style="font-size: 60px;" id="you_text">You win</h1>
+    </div>
+    <div class="modal-body">
+      <h2 id="scoreP"></h2>
+      <h2 id="timeP"></h2>
+    </div>
+    <div class="modal-footer">
+      <h1 style="font-size: 50px;" id="cong_text">Congratulations</h1>
+    </div>
+  </div>
+</div>
+<script>
+	var lang = localStorage.getItem('language');
+	var tyouwin = ""
+	var ttscore = ""
+	var tyoutime = ""
+	var tcong = ""
+	var ttime = ""
+	var tpick = ""
+	if(lang == 'eng'){
+		ttime = "TIME"
+		ttscore = "YOUR SCORE IS:"
+		tyoutime = "YOUR TIME:"
+		tpick = "Picked"
+		tyouwin = "You win!"
+		tcong = "Congratulations!"
+
+	}
+	if(lang == 'ru'){
+		ttime = "ВРЕМЯ"
+		ttscore = "ВАШ СЧЕТ:"
+		tyoutime = "ВАШЕ ВРЕМЯ:"
+		tpick = "Нажатые"
+		tyouwin = "Вы победили!"
+		tcong = "Поздравляю!"
+	}
+	if(lang == 'uzb'){
+		ttime = "VAQT"
+		ttscore = "SIZNING BALLINGIZ:"
+		tyoutime = "VAQTINGIZ:"
+		tpick = "Bosilgan"
+		tyouwin = "Siz yutdingiz!"
+		tcong = "Tabriklaymiz!"
+	}
+	timerInfo.innerHTML = ttime;
+	clickInfo.innerHTML = tpick;
+	you_text.innerHTML = tyouwin;
+	cong_text.innerHTML = tcong;
+	class Card{
+		constructor(x,y,w,h,text){
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;
+			this.dif = 0;
+			this.text = text;
+		}
+		show(){
+				ctx.fillStyle = color[this.text];
+				ctx.textAlign='center';
+				ctx.font = 0.001*(window.innerWidth+window.innerHeight)/2*100/t+'px Arial';
+				ctx.fillText(""+this.text+"", this.x*this.w+this.w/7, this.y*this.h+this.h/4);
+				ctx.font = 0.001*(window.innerWidth+window.innerHeight)/2*250/t+'px Arial';			
+				ctx.fillText(""+textid[this.text]+"", this.x*this.w+this.w/2, this.y*this.h+this.h/1.8);
+				ctx.font = 0.001*(window.innerWidth+window.innerHeight)/2*100/t+'px Arial';
+				ctx.fillText(""+textname[this.text]+"", this.x*this.w+this.w/2, this.y*this.h+this.h/1.2);
+		}
+		hide(){
+			ctx.strokeStyle='green';
+			ctx.clearRect(this.x*this.w, this.y*this.h, this.w, this.h);
+			ctx.strokeRect(this.x*this.w, this.y*this.h, this.w, this.h);
+		}
+	}
+	function shuffle(array) {
+		let currentIndex = array.length,  randomIndex;
+		for (;currentIndex > 0;) {
+
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+
+			[array[currentIndex], array[randomIndex]] = [
+			array[randomIndex], array[currentIndex]];
+		}
+  		return array;
+	}
+	</script>
+	<script>
+		var canvas = document.getElementById('c1');
+		var ctx = canvas.getContext('2d');
+		canvas.width = window.innerWidth * 0.6;
+		canvas.height = window.innerHeight * 0.8;
+		// var t = parseInt(prompt("X ga X kletkani X ni kiriting"));
+		var time_s = 0;
+		var time_m = 0;
+		var atempt = 0;
+		var stopTime = 0;
+		var gamehard = 1;
+		var tscore = 0;
+		var modal = document.getElementById("myModal");
+		var btn = document.getElementById("myBtn");
+		var span = document.getElementsByClassName("close")[0];
+		var yc = 'Khaki';
+		var oc = 'Coral';
+		var rc = 'IndianRed';
+		var fc = 'MediumPurple';
+		var lbc = 'SteelBlue';
+		var lgc = 'Lime';
+		var mc = 'Silver'; 
+		var llbc = 'DarkTurquoise'; 
+		var lllbc = 'Aqua';
+	var color =['0',yc,oc,rc,fc,mc,yc,yc,yc,yc,oc,rc,fc,lgc,mc,yc,yc,yc,oc,rc,fc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,mc,mc,yc,yc,oc,rc,fc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,mc,mc,yc,oc,rc,fc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,llbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,lgc,mc,yc,oc,rc,fc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lllbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lbc,lgc,lgc,lgc,lgc,yc,oc];
+	var textid = ['0','H','He','Li','Be','B','C','N','O','F','Ne','Na',
+		'Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn',
+		'Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y',
+		'Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I',
+		'Xe','Cs','Ba','La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho',
+		'Er','Tm','Yb','Lu','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl',
+		'Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th','Pa','U','Np','Pu','Am',
+		'Cm','Bk','Cf','Es','Fm','Md','No','Lr','Rf','Db','Sg','Bh','Hs']
+	var textname = ['0','Hydrogen','Helium','Lithium','Beryllium','Boron',
+		'Carbon','Nitrogen','Oxygen','Fluorine','Neon','Sodium','Magnesium',
+		'Aluminium','Silicon','Phosphorus','Sulfur','Chlorine','Argon',
+		'Potassium','Calcium','Scandium','Titanium','Vanadium','Chromium',
+		'Manganese','Iron','Cobalt','Nickel','Copper','Zinc','Gallium',
+		'Germanium','Arsenic','Selenium','Bromine','Krypton','Rubidium',
+		'Strontium','Yttrium','Zirconium','Niobium','Molybdenum','Technetium',
+		'Ruthenium','Rhodium','Palladium','Silver','Cadmium','Indium','Tin',
+		'Antimony','Tellurium','Iodine','Xenon','Cesium','Barium','Lanthanum',
+		'Cerium','Praseodymium','Neodymium','Promethium','Samarium','Europium',
+		'Gadolinium','Terbium','Dysprosium','Holmium','Erbium','Thulium',
+		'Ytterbium','Lutetium','Hafnium','Tantalum','Tungsten','Rhenium',
+		'Osmium','Iridium','Platinum','Gold','Mercury','Thallium','Lead',
+		'Bismuth','Polonium','Astatine','Radon','Francium','Radium','Actinium',
+		'Thorium','Protactinium','Uranium','Neptunium','Plutonium','Americium',
+		'Curium','Berkelium','Californium','Einsteinium','Fermium','Mendelevium',
+		'Nobelium','Lawrencium','Rutherfordium','Dubnium','Seaborgium','Bohrium',
+		'Hassium'];
+	var textint = ['0',1.0079,4.0026,6.941,9.0122,10.811,12.0107,14.0067,
+		15.9994,18.9984,20.1797,22.9897,24.305,26.9815,28.0855,30.9738,
+		32.065,35.453,39.948,39.0983,40.078,44.9559,47.867,50.9415,51.9961,
+		54.938,55.845,58.9332,58.6934,63.546,65.39,69.723,72.64,74.9216,
+		78.96,79.904,83.8,85.4678,87.62,88.9059,91.224,92.9064,95.94,98,
+		101.07,102.9055,106.42,107.8682,112.411,114.818,118.71,121.76,127.6,
+		126.9045,131.293,132.9055,137.327,138.9055,140.116,140.9077,144.24,
+		145,150.36,151.964,157.25,158.9253,162.5,164.9303,167.259,168.9342,
+		173.04,174.967,178.49,180.9479,183.84,186.207,190.23,196.9665,192.217,
+		195.078,200.59,204.3833,207.2,208.9804,209,210,222,223,226,227,232.0381,
+		231.0359,238.0289,237,244,243,247,247,251,252,257,258,259,262,261,262,266,
+		264,277];
+	var t = parseInt(localStorage.getItem('difficult'));
+	if (t % 2 != 0){
+		t+=1;
+	}
+	var b = t*t;
+	var cards = [];
+	var sb = 1;
+	var hints = [];
+	for (var i = 1; i <= 108; i++) {
+		hints.push(i);
+	}
+	shuffle(hints);
+	testhint();
+	var juson = Math.floor(Math.random()*(216-b))
+	if (juson % 2 != 0) {
+		juson+=1;
+	}
+	var hint2 = hints.slice(juson,b+juson);
+	hints = hint2;
+
+	shuffle(hints);
+	var h = 0;
+	var tt = 0;
+	var card1 = null;
+	var card2 = null;
+	var pX = 0;
+	var pY = 0;
+	var tx = null;
+	var ty = null;
+	var wcx = canvas.width / t;
+	var hcx = canvas.height / t;
+	for (var x = 0; x < t; x++) {
+		for (var y = 0; y < t; y++) {
+			ctx.strokeStyle='green';
+			ctx.lineWidth = (window.innerWidth+window.innerHeight)/2*0.004
+			ctx.strokeRect(x*wcx, y*hcx, wcx, hcx);
+			cards.push(new Card(x, y, wcx, hcx, hints[h]));
+			h++;
+		}
+	}
+	timer();
+	for (var i = 0; i < cards.length; i++) {
+		for (var k = i+1; k < cards.length; k++) {
+			if (cards[k].text == cards[i].text) {
+				cards[i].n = 1;
+				cards[k].n = 2;
+			}
+		}
+	}
+	canvas.onclick = (event) => {
+		tx = event.offsetX;
+		ty = event.offsetY;
+		for (var i = 0; i < t; i++) {
+			for (var j = 0; j < t; j++) {
+				if (tx >= i*wcx && tx <= i*wcx+wcx && ty >= j*hcx && ty <= j*hcx+hcx) {
+					pX = i;
+					pY = j;
+				}
+			}
+		}
+		if (tt == 0){
+			card1 = findCard(pX,pY);
+			if (card1 != null){
+				card1.show();
+				tt = 1;
+			}
+		}
+		if(tt == 1) {
+			if (pX != card1.x || pY != card1.y) {
+				card2 = findCard(pX,pY);
+				if (card2){
+					card2.show();
+					atempt += 2;
+					if (card1.text == card2.text) {
+						b -= 2;
+						findAndSplice(card1,card2);
+						if (b <= 0) {
+							scorePanm(Math.floor((t*t/atempt)*100),scoreP);
+							timeP.innerHTML = tyoutime+" " + time_m  + ":" + time_s;
+							modal.style.display = "block";
+							stopTime = 1;
+						}
+						tt = 0;
+					}
+					else if(card1.text != card2.text){
+						tt = 2;
+						setTimeout(hidnes,500);
+					}
+				} else {
+					hidnes();
+					tt = 0;
+				}
+			}
+		}
+	}
+	function timer() {
+		if (stopTime) {
+			return 0;
+		}else{
+		if (time_s > 59) {
+			time_s = 0;
+			time_m += 1;
+		}
+		else{
+			time_s += 1;
+		}
+		clickInfo.innerHTML = tpick+" " + atempt/2;
+		if (time_s > 9) {
+			timerInfo.innerHTML = ttime+" " + time_m + ":" + time_s;
+		}
+		else{
+			timerInfo.innerHTML = ttime+" "+ time_m + ":0" + time_s;
+			
+		}
+		setTimeout(timer,1000);
+		}
+	}
+	function findCard(x,y) {
+		for (var i = 0; i < cards.length; i++) {
+			if (cards[i].x == x && cards[i].y == y) {
+				return cards[i];
+			}
+		}
+		return null;
+	}
+	function findAndSplice(c1,c2) {
+		for (var i = 0; i < cards.length; i++) {
+			if (cards[i].x == c1.x && cards[i].y == c1.y) {
+				cards.splice(i,1);
+			}
+		}
+		for (var i = 0; i < cards.length; i++) {
+			if (cards[i].x == c2.x && cards[i].y == c2.y) {
+				cards.splice(i,1);
+			}
+		}
+	}
+	function hidnes() {
+		for (var i = 0; i < cards.length; i++) {
+			if (cards[i]) {
+				cards[i].hide();
+				tt = 0;			
+			}
+		}
+	}
+	function testhint() {
+		var basd = [];
+			for (var i = 0; i < hints.length; i++) {
+				basd.push(hints[i]);
+				basd.push(hints[i]);
+			}
+			hints = basd;
+	}
+	span.onclick = function() {
+		modal.style.display = "none";
+	}
+	window.onclick = function(event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
+		}
+	}
+	function scorePanm(n,scoreId) {
+		var x = n
+		if (x <= tscore) {
+			return 0;
+		}else{
+			tscore += 1;
+			scoreId.innerHTML = ttscore+" " + tscore;
+			setTimeout(scorePanm, Math.floor(Math.random() * 100)+10, x,scoreId);
+		}
+	}
+	if (window.innerWidth <= 1200) {
+		timerInfo.style.position = 'relative'
+		timerInfo.style.margin = 'auto'
+		clickInfo.style.position = 'relative'
+		clickInfo.style.margin = 'auto'
+	}
+	</script>
+</body>
+</html>
